@@ -1,14 +1,14 @@
 <template>
   <!-- <hello-world /> -->
-  <div class="home">
-    home here
+  <div class="recipe">
+    recipe here
   </div>
 </template>
 
 <script>
 
 export default {
-  name: 'Home',
+  name: 'Recipe',
 
   components: {
   },
