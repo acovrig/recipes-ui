@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import config from '../config';
+import router from '@/router';
 
 Vue.use(Vuex);
 
@@ -16,7 +17,14 @@ export default new Vuex.Store({
     user: (state) => state.user,
     auth: (state) => state.auth,
     categories: (state) => state.categories,
-    recipes: (state) => state.recipes,
+    recipes: (state) => (filter) => {
+      if ((filter || {}).category) {
+        return state.recipes.filter((r) => (r.categories || []).indexOf(parseInt(filter.category, 10)) !== -1);
+      }
+      return state.recipes;
+    },
+    recipe: (state) => (id) => state.recipes.filter((recipe) => recipe.id === parseInt(id, 10))[0],
+    category: (state) => (id) => state.categories.filter((category) => category.id === parseInt(id, 10))[0],
   },
   mutations: {
     user(state, value) {
@@ -25,27 +33,25 @@ export default new Vuex.Store({
     auth(state, value) {
       state.auth = value;
     },
-    categories(state, value) {
-      state.categories = value;
+    SET_CATEGORIES(state, value) {
+      state.categories = value.sort((a, b) => {
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      });
     },
-    recipes(state, value) {
-      state.recipes = value;
+    SET_RECIPES(state, value) {
+      state.recipes = value.sort((a, b) => {
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      });
+    },
+    updateRecipe(state, recipe) {
+      Vue.set(state, 'recipes', _.unionBy([recipe], state.recipes, 'id'));
     },
   },
   actions: {
-    init({ commit }) {
-      this._vm.$http.get(`${config.hostname}/categories.json`).then((res) => {
-        commit('categories', res.data);
-      }).catch((err) => {
-        console.error('axios err', err);
-      });
-      this._vm.$http.get(`${config.hostname}/recipes.json`).then((res) => {
-        console.log('recipes', res.data);
-        commit('recipes', res.data);
-      }).catch((err) => {
-        console.error('axios err', err);
-      });
-    },
   },
   modules: {
   },

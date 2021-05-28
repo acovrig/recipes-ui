@@ -1,11 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="purple"
-      dark
-    >
-      <div class="d-flex align-center">
+    <v-app-bar app color="green">
+      <span class="d-flex d-sm-none">
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      </span>
+      <div class="align-center d-flex">
         <v-img
           alt="Recipes Logo"
           class="shrink mr-2"
@@ -22,10 +21,11 @@
           @click="goHome()">
           Recipes
         </span>
-
-          <!-- open-on-hover -->
+      </div>
+      <div class="align-center d-none d-sm-flex">
         <v-menu
-          transition="slide-x-transition"
+          transition="slide-y-transition"
+          open-on-hover
           offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -40,7 +40,7 @@
               <v-list-item-title>
                 <v-btn
                   to="/categories"
-                  active-class="no-active"
+                  exact
                   text>
                   View All
                 </v-btn>
@@ -52,7 +52,8 @@
               :key="cat.id">
               <v-list-item-title>
                 <v-btn
-                  :to="`/category/${cat.id}`"
+                  :to="`/categories/${cat.id}`"
+                  exact
                   text>
                   {{ cat.name }}
                 </v-btn>
@@ -88,6 +89,69 @@
       </v-btn>
     </v-app-bar>
 
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary>
+      <v-list nav dense>
+        <v-list-item link :to="`/`" exact>
+          <v-list-item-avatar>
+            <v-img
+              alt="Recipes Logo"
+              src="https://recipes.thecovrigs.net/assets/logo_header-062f1ce00398b32f3f1729036fc18c0c1d1938210c766c91b108fae3385823bb.png"
+            />
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-group
+          active-class="deep-green--text text--accent-4"
+          no-action>
+
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Categories</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item
+            link
+            :to="`/categories`"
+            exact>
+            <v-list-item-content>
+              <v-list-item-title>
+                View All
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider />
+
+          <v-list-item
+            v-for="cat in categories"
+            :key="cat.id"
+            link
+            :to="`/categories/${cat.id}`"
+            exact>
+            <v-list-item-content>
+              <v-list-item-title>
+                {{ cat.name }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+        <v-list-item link to="/recipes">
+          <v-list-item-title>Recipes</v-list-item-title>
+        </v-list-item>
+        <v-list-item link to="/auto">
+          <v-list-item-title>What can I Make?</v-list-item-title>
+        </v-list-item>
+        <v-list-item link to="/login">
+          <v-list-item-title>Login</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
     <v-main>
       <router-view/>
     </v-main>
@@ -100,6 +164,7 @@ export default {
   name: 'App',
 
   data: () => ({
+    drawer: false,
   }),
   computed: {
     loggedIn() {

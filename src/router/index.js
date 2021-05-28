@@ -21,7 +21,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "categories" */ '../views/Categories.vue'),
   },
   {
-    path: '/category/:id',
+    path: '/categories/:id',
     name: 'Category',
     component: () => import(/* webpackChunkName: "category" */ '../views/Category.vue'),
   },
@@ -31,7 +31,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "recipies" */ '../views/Recipes.vue'),
   },
   {
-    path: '/recipe/:id',
+    path: '/recipes/:id',
     name: 'Recipe',
     component: () => import(/* webpackChunkName: "showrecipe" */ '../views/Recipe.vue'),
   },

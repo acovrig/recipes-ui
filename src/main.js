@@ -19,6 +19,7 @@ import {
   faSquare,
 } from '@fortawesome/free-regular-svg-icons';
 import { pick } from 'lodash';
+import config from '@/config';
 import App from './App.vue';
 import { router } from './router';
 import store from './store';
@@ -26,7 +27,6 @@ import vuetify from './plugins/vuetify';
 
 Vue.prototype.moment = moment;
 Vue.prototype.$http = axios.create();
-// Vue.prototype.$cookie = vueCookie.create();
 Vue.config.productionTip = false;
 
 library.add(faCheckSquare, faSquare, faBook, faTag, faTrash, faEdit, faExternalLinkAlt);
@@ -58,9 +58,9 @@ Vue.prototype.$http.interceptors.response.use((res) => {
   return Promise.reject(err);
 });
 
-Vue.prototype.$http.interceptors.request.use((config) => {
+Vue.prototype.$http.interceptors.request.use((c) => {
   const headers = store.getters.auth;
-  const conf = config;
+  const conf = c;
 
   conf.headers = headers;
   return conf;
@@ -71,8 +71,11 @@ new Vue({
   store,
   render: (h) => h(App),
   vuetify,
-
   mounted() {
-    this.$store.dispatch('init');
+    axios.get(`${config.hostname}/categories.json`).then((res) => {
+      store.commit('SET_CATEGORIES', res.data);
+    }).catch((err) => {
+      console.error('axios err', err);
+    });
   },
 }).$mount('#app');
