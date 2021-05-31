@@ -13,7 +13,7 @@
       <template v-slot:header>
         <v-toolbar
           dark
-          color="green darken-3"
+          color="secondary"
           class="mb-1"
         >
           <v-text-field
@@ -44,7 +44,7 @@
               <v-btn
                 large
                 depressed
-                color="green"
+                color="accent"
                 :value="false"
               >
                 <v-icon>mdi-arrow-up</v-icon>
@@ -52,7 +52,7 @@
               <v-btn
                 large
                 depressed
-                color="green"
+                color="accent"
                 :value="true"
               >
                 <v-icon>mdi-arrow-down</v-icon>

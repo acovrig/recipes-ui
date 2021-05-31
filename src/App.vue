@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="green">
+    <v-app-bar app color="primary">
       <span class="d-flex d-sm-none">
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       </span>
@@ -87,6 +87,25 @@
         text>
         <span class="mr-2">Login</span>
       </v-btn>
+
+      <v-tooltip v-if="!$vuetify.theme.dark" bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" color="info" small fab @click="darkMode">
+            <v-icon class="mr-1">mdi-moon-waxing-crescent</v-icon>
+          </v-btn>
+        </template>
+        <span>Dark Mode On</span>
+      </v-tooltip>
+
+      <v-tooltip v-else bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" color="info" small fab @click="darkMode">
+            <v-icon color="yellow">mdi-white-balance-sunny</v-icon>
+          </v-btn>
+        </template>
+        <span>Dark Mode Off</span>
+      </v-tooltip>
+
     </v-app-bar>
 
     <v-navigation-drawer
@@ -106,7 +125,6 @@
           </v-list-item-content>
         </v-list-item>
         <v-list-group
-          active-class="deep-green--text text--accent-4"
           no-action>
 
           <template v-slot:activator>
@@ -180,6 +198,13 @@ export default {
         this.$router.push('/');
       }
     },
+    darkMode() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      localStorage.setItem('dark', this.$vuetify.theme.dark);
+    },
+  },
+  beforeMount() {
+    this.$vuetify.theme.dark = localStorage.getItem('dark') || false;
   },
 };
 </script>
