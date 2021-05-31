@@ -12,7 +12,7 @@ cache: &global_cache
   policy: pull
 
 setup:
-  image: node:16.2.0
+  image: node:15.14.0
   stage: setup
   cache:
     <<: *global_cache
@@ -24,7 +24,7 @@ setup:
   #     - package-lock.json
 
 build:
-  image: node:16.2.0
+  image: node:15.14.0
   stage: build
   cache: 
     <<: *global_cache
@@ -36,7 +36,7 @@ build:
       - dist
 
 unit test:
-  image: node:16.2.0
+  image: node:15.14.0
   stage: test
   cache: 
     <<: *global_cache
