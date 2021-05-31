@@ -1,15 +1,17 @@
 /* eslint-disable */
 import Vue from 'vue';
 import Vuex from 'vuex';
+import cookie from 'vue-cookie';
 import config from '../config';
-import router from '@/router';
+// import router from '@/router';
+import axios from 'axios';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: null,
     auth: {},
+    user: {},
     categories: [],
     recipes: [],
   },
@@ -27,11 +29,21 @@ export default new Vuex.Store({
     category: (state) => (id) => state.categories.filter((category) => category.id === parseInt(id, 10))[0],
   },
   mutations: {
-    user(state, value) {
-      state.user = value;
+    user(state, user) {
+      Vue.set(state, 'user', user);
+      if (user === undefined || user === null) {
+        localStorage.removeItem('user');
+      } else {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     },
-    auth(state, value) {
-      state.auth = value;
+    auth(state, auth) {
+      Vue.set(state, 'auth', auth);
+      if (auth === undefined || auth === null) {
+        cookie.set('session', null);
+      } else {
+        cookie.set('session', JSON.stringify(auth), { expires: '14D' });
+      }
     },
     SET_CATEGORIES(state, value) {
       state.categories = value.sort((a, b) => {
@@ -52,6 +64,25 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    init({ commit }) {
+      try {
+        let auth = cookie.get('session');
+        let user = localStorage.getItem('user');
+  
+        if (auth !== undefined && auth !== null) auth = JSON.parse(auth);
+        if (user !== undefined && user !== null) user = JSON.parse(user);
+  
+        commit('auth', auth);
+        commit('user', user);
+      } catch (e) {
+        console.error(e);
+      }
+      axios.get(`${config.hostname}/categories.json`).then((res) => {
+        commit('SET_CATEGORIES', res.data);
+      }).catch((err) => {
+        console.error('axios err', err);
+      });
+    },
   },
   modules: {
   },

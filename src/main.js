@@ -1,9 +1,12 @@
+/* eslint-disable */
 import Vue from 'vue';
 import './registerServiceWorker';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 import vueCookie from 'vue-cookie';
 import status from 'http-status';
+import ActionCableVue from 'actioncable-vue';
+import UUID from 'vue-uuid';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -19,7 +22,6 @@ import {
   faSquare,
 } from '@fortawesome/free-regular-svg-icons';
 import { pick } from 'lodash';
-import config from '@/config';
 import App from './App.vue';
 import { router } from './router';
 import store from './store';
@@ -34,33 +36,32 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueAxios, axios);
 Vue.use(vueCookie);
+Vue.use(ActionCableVue, {
+  debug: true,
+  debugLevel: 'error',
+  connectImmediately: false,
+});
+Vue.use(UUID);
 
 Vue.prototype.$http.interceptors.response.use((res) => {
   if (res.headers['access-token']) {
-    const authHeaders = pick(res.headers, ['access-token', 'client', 'expiry', 'uuid', 'token-type']);
+    const authHeaders = pick(res.headers, ['access-token', 'client', 'expiry', 'uid', 'token-type']);
     store.commit('auth', authHeaders);
-
-    let session = vueCookie.get('session');
-
-    if (session) {
-      session = JSON.parse(session);
-      session.tokens = authHeaders;
-      vueCookie.set('session', JSON.stringify(session), { expires: '14D' });
-    }
   }
 
   return res;
 }, (err) => {
-  if (router.currentRoute.name !== 'Login' && err.response.status === status.UNAUTHORIZED) {
+  if (router.currentRoute.name !== 'Login' && (err.response || {}).status === status.UNAUTHORIZED) {
     store.commit('user', null);
-    router.push({ name: 'Login' });
+    store.commit('auth', null);
+    // router.push({ name: 'Login' });
   }
   return Promise.reject(err);
 });
 
-Vue.prototype.$http.interceptors.request.use((c) => {
+Vue.prototype.$http.interceptors.request.use((config) => {
   const headers = store.getters.auth;
-  const conf = c;
+  const conf = config;
 
   conf.headers = headers;
   return conf;
@@ -72,10 +73,6 @@ new Vue({
   render: (h) => h(App),
   vuetify,
   mounted() {
-    axios.get(`${config.hostname}/categories.json`).then((res) => {
-      store.commit('SET_CATEGORIES', res.data);
-    }).catch((err) => {
-      console.error('axios err', err);
-    });
+    store.dispatch('init');
   },
 }).$mount('#app');

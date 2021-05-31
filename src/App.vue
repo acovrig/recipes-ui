@@ -168,7 +168,7 @@ export default {
   }),
   computed: {
     loggedIn() {
-      return false;
+      return (this.$store.getters.auth || {}).client !== undefined;
     },
     categories() {
       return this.$store.getters.categories;
@@ -180,14 +180,6 @@ export default {
         this.$router.push('/');
       }
     },
-  },
-  beforeCreate() {
-    const session = this.$cookie.get('session');
-    if (session && session.length) {
-      const sesh = JSON.parse(session);
-      this.$store.commit('user', sesh.user);
-      this.$store.commit('auth', sesh.tokens);
-    }
   },
 };
 </script>

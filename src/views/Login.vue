@@ -4,15 +4,17 @@
       <v-col>
         <v-card class="mx-auto">
           <v-card-title>
-            <h1>Login - This does nothing for now...</h1>
+            <h1>Login</h1>
           </v-card-title>
           <v-card-text>
             <v-form>
               <v-text-field
+                v-model="email"
                 label="Username"
                 prepend-icon="mdi-account-circle"
               />
               <v-text-field
+                v-model="password"
                 :type="showPassword ? 'text' : 'Password'"
                 label="Password"
                 prepend-icon="mdi-lock"
@@ -34,6 +36,8 @@
           <v-card-actions>
             <v-btn
               @click="googleLogin()"
+              :href="`https://dev-recipes.thecovrigs.net/omniauth/google_oauth2?token=${token}`"
+              target="_BLANK"
               color="red"
               block
               dark>
@@ -49,35 +53,81 @@
 </template>
 
 <script>
-import { pick } from 'lodash';
-import config from '../config';
+import config from '@/config';
 
 export default {
   name: 'Login',
   components: {},
   data() {
     return {
+      token: '',
       showPassword: false,
+      email: 'accovrig@gmail.com',
+      password: 'asdf1234',
+      emailRules: [
+        (value) => !!value || 'Required.',
+        (value) => !value || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'Valid email required.',
+      ],
+      passRules: [
+        (value) => !!value || 'Required.',
+        (value) => (value || '').length >= 8 || 'Minimum 8 characters.',
+        (value) => (value || '').length <= 128 || 'Maximum 128 characters.',
+      ],
     };
+  },
+  computed: {
+    user() {
+      return this.$store.getters.user;
+    },
+    auth() {
+      return this.$store.getters.auth;
+    },
+  },
+  channels: {
+    LoginChannel: {
+      connected() {
+        console.log('connected to Login');
+      },
+      rejected() {
+        console.error('failed to connect to Login');
+      },
+      received(data) {
+        if (data.user !== undefined && data.auth !== undefined) {
+          this.$store.commit('user', data.user);
+          this.$store.commit('auth', data.auth);
+          this.$router.replace({ name: 'Home' });
+        } else if (data.uuid && data.status === 'connected') {
+          this.token = data.uuid;
+        }
+      },
+      disconnected() {
+        console.log('Login disconnected');
+      },
+    },
   },
   methods: {
     googleLogin() {
-      console.log('Google login');
+      console.log('Google login', this.token);
     },
     doLogin() {
-      this.$http.post(`${config.hostname}/users/sign_in`, { email: this.email, password: this.password }).then((res) => {
-        const authHeaders = pick(res.headers, ['access-token', 'client', 'expiry', 'uid', 'token-type']);
-        this.$store.commit('auth', authHeaders);
-        this.$store.commit('user', res.data);
-        const contents = {
-          tokens: authHeaders,
-          user: res.data.data,
-        };
-
-        this.$cookie.set('session', JSON.stringify(contents), { expires: '14D' });
+      this.$http.post(`${config.hostname}/api/v1/auth/sign_in`, { email: this.email, password: this.password }).then((res) => {
+        this.$store.commit('user', res.data.data);
         this.$router.push('/');
+      }).catch((err) => {
+        console.error('err', err);
       });
     },
+  },
+  created() {
+    const token = this.$uuid.v4();
+    this.token = token;
+    this.$cable.connection.connect(`wss://dev-recipes.thecovrigs.net/cable?token=${token}`);
+    this.$cable.subscribe({
+      channel: 'LoginChannel',
+    });
+  },
+  beforeDestroy() {
+    this.$cable.connection.disconnect();
   },
 };
 </script>
