@@ -1,7 +1,7 @@
 stages:
   - setup
   - build
-  - test
+  # - test
   - deploy
 
 cache: &global_cache
@@ -35,27 +35,27 @@ build:
     paths:
       - dist
 
-unit test:
-  image: node:15.14.0
-  stage: test
-  cache: 
-    <<: *global_cache
-  script:
-    - npm run test:unit
+# unit test:
+#   image: node:15.14.0
+#   stage: test
+#   cache: 
+#     <<: *global_cache
+#   script:
+#     - npm run test:unit
 
-e2e test:
-  image: cypress/browsers:node14.16.0-chrome90-ff88
-  stage: test
-  cache: 
-    <<: *global_cache
-  script:
-    - npm ci --cache .npm --prefer-offline --also=dev
-    - npm run test:e2e -- --headless
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - tests/e2e/videos
-      - tests/e2e/screenshots
+# e2e test:
+#   image: cypress/browsers:node14.16.0-chrome90-ff88
+#   stage: test
+#   cache: 
+#     <<: *global_cache
+#   script:
+#     - npm ci --cache .npm --prefer-offline --also=dev
+#     - npm run test:e2e -- --headless
+#   artifacts:
+#     expire_in: 1 week
+#     paths:
+#       - tests/e2e/videos
+#       - tests/e2e/screenshots
 
 deploy:
   image: alpine
