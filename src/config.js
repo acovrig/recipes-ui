@@ -1,3 +1,4 @@
 export default {
-  hostname: `https://${process.env.NODE_ENV === 'development' ? 'dev-' : ''}recipes.thecovrigs.net`,
+  baseURI: `https://${process.env.NODE_ENV === 'development' ? 'dev-' : ''}recipes.thecovrigs.net`,
+  hostname: `${process.env.NODE_ENV === 'development' ? 'dev-' : ''}recipes.thecovrigs.net`,
 };

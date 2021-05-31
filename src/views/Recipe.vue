@@ -85,7 +85,7 @@ export default {
     },
   },
   created() {
-    this.$http.get(`${config.hostname}/recipes/${this.$route.params.id}.json`).then((res) => {
+    this.$http.get(`${config.baseURI}/recipes/${this.$route.params.id}.json`).then((res) => {
       this.$store.commit('updateRecipe', res.data);
     }).catch((err) => {
       console.error(err.response.data);

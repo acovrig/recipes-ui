@@ -36,7 +36,7 @@
           <v-card-actions>
             <v-btn
               @click="googleLogin()"
-              :href="`https://dev-recipes.thecovrigs.net/omniauth/google_oauth2?token=${token}`"
+              :href="`${config.baseURI}/omniauth/google_oauth2?token=${token}`"
               target="_BLANK"
               color="red"
               block
@@ -60,6 +60,7 @@ export default {
   components: {},
   data() {
     return {
+      config,
       token: '',
       showPassword: false,
       email: '',
@@ -110,7 +111,7 @@ export default {
       console.log('Google login', this.token);
     },
     doLogin() {
-      this.$http.post(`${config.hostname}/api/v1/auth/sign_in`, { email: this.email, password: this.password }).then((res) => {
+      this.$http.post(`${config.baseURI}/api/v1/auth/sign_in`, { email: this.email, password: this.password }).then((res) => {
         this.$store.commit('user', res.data.data);
         this.$router.push('/');
       }).catch((err) => {
@@ -121,7 +122,7 @@ export default {
   created() {
     const token = this.$uuid.v4();
     this.token = token;
-    this.$cable.connection.connect(`wss://dev-recipes.thecovrigs.net/cable?token=${token}`);
+    this.$cable.connection.connect(`wss://${config.hostname}/cable?token=${token}`);
     this.$cable.subscribe({
       channel: 'LoginChannel',
     });

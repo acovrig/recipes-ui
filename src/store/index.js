@@ -77,7 +77,7 @@ export default new Vuex.Store({
       } catch (e) {
         console.error(e);
       }
-      axios.get(`${config.hostname}/categories.json`).then((res) => {
+      axios.get(`${config.baseURI}/categories.json`).then((res) => {
         commit('SET_CATEGORIES', res.data);
       }).catch((err) => {
         console.error('axios err', err);

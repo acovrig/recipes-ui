@@ -32,7 +32,7 @@ export default {
     },
   },
   created() {
-    this.$http.get(`${config.hostname}/recipes.json`).then((res) => {
+    this.$http.get(`${config.baseURI}/recipes.json`).then((res) => {
       this.$store.commit('SET_RECIPES', res.data);
     }).catch((err) => {
       console.error('axios err', err);
