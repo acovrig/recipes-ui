@@ -62,8 +62,8 @@ export default {
     return {
       token: '',
       showPassword: false,
-      email: 'accovrig@gmail.com',
-      password: 'asdf1234',
+      email: '',
+      password: '',
       emailRules: [
         (value) => !!value || 'Required.',
         (value) => !value || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'Valid email required.',
